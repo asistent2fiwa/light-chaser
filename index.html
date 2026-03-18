@@ -3,31 +3,32 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Star Catcher</title>
+<title>Light Chaser</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;900&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Outfit',sans-serif;background:#000011;color:#fff;overflow:hidden;height:100vh;height:100dvh;touch-action:none;user-select:none}
-.s{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000011}
+body{font-family:'Outfit',sans-serif;background:#000008;color:#fff;overflow:hidden;height:100vh;height:100dvh;touch-action:none;user-select:none}
+.s{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:#000008}
 .s.active{display:flex}
-#start{background:#000011}
-h1{font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#ffee00;text-shadow:0 0 30px #ffee00;margin-bottom:10px}
+#start{background:#000008}
+h1{font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#88ccff;text-shadow:0 0 30px #88ccff;margin-bottom:10px}
 .sub{color:#446;margin-bottom:30px;font-size:1rem}
-.btn{background:#ffee00;color:#000;border:none;padding:18px 55px;font-size:1.2rem;font-weight:700;border-radius:50px;text-transform:uppercase}
+.btn{background:#88ccff;color:#000;border:none;padding:18px 55px;font-size:1.2rem;font-weight:700;border-radius:50px;text-transform:uppercase}
 .high{position:absolute;top:20px;right:20px;background:#111122;padding:12px 20px;border-radius:15px;font-size:0.9rem}
-.high span{color:#ffee00;font-weight:700}
-#gc{width:100%;height:100%;background:#000011;display:block}
+.high span{color:#88ccff;font-weight:700}
+#gc{width:100%;height:100%;background:#000008;display:block}
 .h{position:fixed;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;pointer-events:none;z-index:10}
 .b{background:#111122;padding:10px 20px;border-radius:18px}
 .l{font-size:0.55rem;color:#446;text-transform:uppercase}
-.v{font-size:1.4rem;font-weight:900;color:#ffee00}
-#over{background:#000011}
-.tk{font-size:2.5rem;color:#ffee00;margin-bottom:10px}
+.v{font-size:1.4rem;font-weight:900;color:#88ccff}
+.pb{position:fixed;bottom:0;left:0;height:5px;background:#88ccff;width:100%;transition:width 0.1s}
+#over{background:#000008}
+.tk{font-size:2.5rem;color:#88ccff;margin-bottom:10px}
 .fs{font-size:3rem;font-weight:900;color:#fff}
 .fl{color:#446;margin-bottom:25px}
 .st{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:220px;margin-bottom:25px}
 .sc{background:#111122;padding:12px;border-radius:12px;text-align:center}
-.sv{font-size:1.2rem;font-weight:700;color:#ffee00}
+.sv{font-size:1.2rem;font-weight:700;color:#88ccff}
 .sl{font-size:0.55rem;color:#446;text-transform:uppercase;margin-top:4px}
 .nh{color:#ff4444;font-weight:700;margin-bottom:15px;display:none}
 .tut{position:absolute;bottom:50px;color:#446;font-size:0.85rem;text-align:center;padding:0 20px}
@@ -36,17 +37,18 @@ h1{font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#ffee00;text-shadow:0 
 <body>
 <div id="start" class="s active">
 <div class="high">HIGH: <span id="hscore">0</span></div>
-<h1>⭐ STARS ⭐</h1>
-<div class="sub">TRYK FOR AT FANGE</div>
+<h1>LIGHT<br>CHASER</h1>
+<div class="sub">KLIK PÅ LYSENE!</div>
 <button class="btn" id="sb">START</button>
-<div class="tut">Tryk på skærmen hvor du vil hen</div>
+<div class="tut">25 SEKUNDER</div>
 </div>
 <div id="game" class="s">
 <canvas id="gc"></canvas>
 <div class="h">
 <div class="b"><div class="l">SCORE</div><div class="v" id="sc">0</div></div>
-<div class="b"><div class="l">STJERNER</div><div class="v" id="sz">0</div></div>
+<div class="b"><div class="l">TID</div><div class="v" id="tm">25</div></div>
 </div>
+<div class="pb" id="pb"></div>
 </div>
 <div id="over" class="s">
 <div class="tk">SLUT!</div>
@@ -54,12 +56,11 @@ h1{font-size:clamp(2rem,8vw,3.5rem);font-weight:900;color:#ffee00;text-shadow:0 
 <div class="fs" id="fs">0</div>
 <div class="fl">POINT</div>
 <div class="st">
-<div class="sc"><div class="sv" id="len">0</div><div class="sl">Stjerner</div></div>
+<div class="sc"><div class="sv" id="len">0</div><div class="sl">Lys fanget</div></div>
 </div>
 <button class="btn" id="rb">PRØV IGEN</button>
 </div>
 <script>
-// Star-lyde
 const ctx=new(window.AudioContext||window.webkitAudioContext)();
 function play(type){
 if(ctx.state=='suspended')ctx.resume();
@@ -68,174 +69,169 @@ for(var i=0;i<3;i++){
 setTimeout(function(){
 var osc=ctx.createOscillator(),gain=ctx.createGain();
 osc.type='sine';
-var f=800+Math.random()*600;
+var f=1000+Math.random()*500;
 osc.connect(gain);gain.connect(ctx.destination);
 osc.frequency.setValueAtTime(f,ctx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(f*1.3,ctx.currentTime+0.1);
-gain.gain.setValueAtTime(0.12,ctx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.15);
-osc.start();osc.stop(ctx.currentTime+0.15);
-},i*40);
+osc.frequency.exponentialRampToValueAtTime(f*1.5,ctx.currentTime+0.15);
+gain.gain.setValueAtTime(0.15,ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.2);
+osc.start();osc.stop(ctx.currentTime+0.2);
+},i*50);
 }
 }
-if(type==='die'){
-for(var i=0;i<8;i++){
-setTimeout(function(){
+if(type==='miss'){
 var osc=ctx.createOscillator(),gain=ctx.createGain();
 osc.type='sawtooth';
 osc.connect(gain);gain.connect(ctx.destination);
-osc.frequency.setValueAtTime(300-30*i,ctx.currentTime);
+osc.frequency.setValueAtTime(150,ctx.currentTime);
+osc.frequency.exponentialRampToValueAtTime(50,ctx.currentTime+0.2);
 gain.gain.setValueAtTime(0.1,ctx.currentTime);
-gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.15);
-osc.start();osc.stop(ctx.currentTime+0.15);
-},i*50);
+gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.2);
+osc.start();osc.stop(ctx.currentTime+0.2);
 }
+if(type==='spawn'){
+var osc=ctx.createOscillator(),gain=ctx.createGain();
+osc.type='sine';
+osc.connect(gain);gain.connect(ctx.destination);
+osc.frequency.setValueAtTime(600+Math.random()*200,ctx.currentTime);
+gain.gain.setValueAtTime(0.03,ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+osc.start();osc.stop(ctx.currentTime+0.3);
 }
 if(type==='start'){
 var osc=ctx.createOscillator(),gain=ctx.createGain();
 osc.type='sine';osc.connect(gain);gain.connect(ctx.destination);
 osc.frequency.setValueAtTime(400,ctx.currentTime);
-osc.frequency.exponentialRampToValueAtTime(1000,ctx.currentTime+0.3);
+osc.frequency.exponentialRampToValueAtTime(800,ctx.currentTime+0.3);
 gain.gain.setValueAtTime(0.1,ctx.currentTime);
 gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);
 osc.start();osc.stop(ctx.currentTime+0.3);
 }
 }
-var hs=localStorage.getItem('starHS')||'0';
+var hs=localStorage.getItem('lightHS')||'0';
 document.getElementById('hscore').innerText=hs;
 var c=document.getElementById('gc');
 var x=c.getContext('2d');
-var sz=40;
-function rz(){
-c.width=window.innerWidth;c.height=window.innerHeight;
-sz=Math.floor(Math.min(c.width,c.height)/10);
-if(sz<30)sz=30;if(sz>60)sz=60;
-}
+function rz(){c.width=window.innerWidth;c.height=window.innerHeight;}
 window.onresize=rz;rz();
-var sc=0,pl=false;
-var stars=[];
-var player={x:0,y:0};
-var gid,tx=0,ty=0,moving=false;
+var sc=0,tm=25,pl=false;
+var lights=[];
+var gid,lastTime;
 function st(){
 play('start');
-sc=0;pl=true;stars=[];
-var cx=Math.floor(c.width/sz/2),cy=Math.floor(c.height/sz/2);
-player={x:cx,y:cy};tx=cx;ty=cy;moving=false;
-for(var i=0;i<5;i++)spawnStar();
+sc=0;tm=25;pl=true;lights=[];
 document.getElementById('start').classList.remove('active');
 document.getElementById('over').classList.remove('active');
 document.getElementById('game').classList.add('active');
+lastTime=Date.now();
+spawnLight();spawnLight();spawnLight();
 lp();
 }
-function spawnStar(){
-var mx=Math.floor(c.width/sz),my=Math.floor(c.height/sz),sx,sy,ok;
-for(var t=0;t<50;t++){
-sx=Math.floor(Math.random()*(mx-2))+1;
-sy=Math.floor(Math.random()*(my-4))+2;
-ok=true;
-if(Math.abs(sx-player.x)<2&&Math.abs(sy-player.y)<2)ok=false;
-for(var s of stars){if(s.x==sx&&s.y==sy)ok=false;}
-if(ok)break;
-}
-if(ok)stars.push({x:sx,y:sy,t:Math.random()*Math.PI*2});
+function spawnLight(){
+var pad=80;
+var lx=pad+Math.random()*(c.width-pad*2);
+var ly=pad+Math.random()*(c.height-pad*2);
+var size=30+Math.random()*40;
+var hue=180+Math.random()*60;
+var light={
+x:lx,y:ly,size:size,hue:hue,
+life:1,decay:0.008+Math.random()*0.005,
+phase:Math.random()*Math.PI*2
+};
+lights.push(light);
+play('spawn');
 }
 function lp(){
 if(!pl)return;
-x.fillStyle='#000011';x.fillRect(0,0,c.width,c.height);
-// Baggrunds-stjerner
-x.fillStyle='#223';
-for(var i=0;i<50;i++){
-var bx=(i*137)%c.width,by=(i*251)%c.height;
-x.beginPath();x.arc(bx,by,1,0,6.28);x.fill();
+var now=Date.now(),dt=now-lastTime;
+lastTime=now;
+x.fillStyle='#000008';
+x.fillRect(0,0,c.width,c.height);
+// Sky/clouds background
+for(var i=0;i<8;i++){
+var t=Date.now()/3000+i;
+var sx=(i*200+t*10)%(c.width+200)-100;
+var sy=(i*150+t*5)%(c.height+200)-100;
+var grd=x.createRadialGradient(sx,sy,0,sx,sy,100+i*20);
+grd.addColorStop(0,'rgba(60,80,120,0.15)');
+grd.addColorStop(1,'transparent');
+x.fillStyle=grd;
+x.fillRect(sx-150,sy-150,300,300);
 }
-// Grid
-x.strokeStyle='#111122';
-for(var i=0;i<c.width;i+=sz){x.beginPath();x.moveTo(i,0);x.lineTo(i,c.height);x.stroke()}
-for(var i=0;i<c.height;i+=sz){x.beginPath();x.moveTo(0,i);x.lineTo(c.width,i);x.stroke()}
-// Move player towards target
-if(moving&&(player.x!==tx||player.y!==ty)){
-if(player.x<tx)player.x++;
-else if(player.x>tx)player.x--;
-if(player.y<ty)player.y++;
-else if(player.y>ty)player.y--;
-moving=(player.x!==tx||player.y!==ty);
+// Draw lights
+for(var i=lights.length-1;i>=0;i--){
+var l=lights[i];
+l.life-=l.decay;
+l.phase+=0.1;
+if(l.life<=0){
+lights.splice(i,1);
+continue;
 }
-// Draw stars
-for(var s of stars){
-s.t+=0.05;
-var glow=0.5+Math.sin(s.t)*0.3;
-x.fillStyle='#ffee00';
-x.shadowColor='#ffee00';
-x.shadowBlur=20*glow;
+var glow=Math.sin(l.phase)*0.3+0.7;
+var alpha=l.life*glow;
+// Outer glow
+var grd=x.createRadialGradient(l.x,l.y,0,l.x,l.y,l.size*2);
+grd.addColorStop(0,`hsla(${l.hue},100%,80%,${alpha*0.5})`);
+grd.addColorStop(0.5,`hsla(${l.hue},100%,70%,${alpha*0.2})`);
+grd.addColorStop(1,'transparent');
+x.fillStyle=grd;
+x.fillRect(l.x-l.size*2,l.y-l.size*2,l.size*4,l.size*4);
+// Inner light
+x.fillStyle=`hsla(${l.hue},100%,90%,${alpha})`;
+x.shadowColor=`hsla(${l.hue},100%,70%,1)`;
+x.shadowBlur=30*glow;
 x.beginPath();
-for(var i=0;i<5;i++){
-var ang=(i*4*Math.PI/5)-Math.PI/2;
-var r=sz*0.35*(i%2===0?1:0.5);
-var px=s.x*sz+sz/2+Math.cos(ang+s.t)*r;
-var py=s.y*sz+sz/2+Math.sin(ang+s.t)*r;
-if(i===0)x.moveTo(px,py);else x.lineTo(px,py);
-}
-x.closePath();x.fill();
-}
-x.shadowBlur=0;
-// Draw player
-x.fillStyle='#ff44ff';
-x.shadowColor='#ff44ff';
-x.shadowBlur=15;
-x.beginPath();
-x.arc(player.x*sz+sz/2,player.y*sz+sz/2,sz*0.4,0,6.28);
+x.arc(l.x,l.y,l.size*0.4*l.life,0,Math.PI*2);
 x.fill();
 x.shadowBlur=0;
-// Catch
-for(var i=stars.length-1;i>=0;i--){
-if(stars[i].x===player.x&&stars[i].y===player.y){
-sc+=10;
-play('catch');
-stars.splice(i,1);
-spawnStar();
 }
-}
+// Click handling - check for clicks on lights
+tm-=dt/1000;
+document.getElementById('tm').innerText=Math.ceil(tm);
+document.getElementById('pb').style.width=(tm/25*100)+'%';
+if(tm<=0){nd();return;}
+// Spawn new lights occasionally
+if(Math.random()<0.03)spawnLight();
 document.getElementById('sc').innerText=sc;
-document.getElementById('sz').innerText=Math.floor(sc/10);
 document.getElementById('len').innerText=Math.floor(sc/10);
-gid=setTimeout(lp,100);
+gid=setTimeout(lp,30);
 }
-function nd(){pl=false;clearTimeout(gid);play('die');
-var h=parseInt(localStorage.getItem('starHS')||'0');
-var nh=sc>h;if(nh)localStorage.setItem('starHS',sc);
+function nd(){pl=false;clearTimeout(gid);
+var h=parseInt(localStorage.getItem('lightHS')||'0');
+var nh=sc>h;if(nh)localStorage.setItem('lightHS',sc);
 document.getElementById('game').classList.remove('active');
 document.getElementById('over').classList.add('active');
 document.getElementById('fs').innerText=sc;
 document.getElementById('nhs').style.display=nh?'block':'none';
 }
-document.getElementById('gc').ontouchstart=function(e){
+var clicking=false;
+function handleClick(cx,cy){
+if(!pl)return;
+var caught=false;
+for(var i=lights.length-1;i>=0;i--){
+var l=lights[i];
+var dist=Math.sqrt((cx-l.x)**2+(cy-l.y)**2);
+if(dist<l.size){
+sc+=10;
+caught=true;
+play('catch');
+lights.splice(i,1);
+setTimeout(spawnLight,200);
+break;
+}
+}
+if(!caught){
+play('miss');
+}
+}
+c.onclick=function(e){
+handleClick(e.clientX,e.clientY);
+};
+c.ontouchstart=function(e){
 e.preventDefault();
-if(!pl)return;
-var ex=e.touches[0].clientX,ey=e.touches[0].clientY;
-var mx=Math.floor(c.width/sz),my=Math.floor(c.height/sz);
-tx=Math.floor(ex/sz);
-ty=Math.floor(ey/sz);
-if(tx<0)tx=0;if(tx>=mx)tx=mx-1;
-if(ty<0)ty=0;if(ty>=my)ty=my-1;
-moving=true;
+var t=e.touches[0];
+handleClick(t.clientX,t.clientY);
 };
-document.getElementById('gc').onclick=function(e){
-if(!pl)return;
-var ex=e.clientX,ey=e.clientY;
-var mx=Math.floor(c.width/sz),my=Math.floor(c.height/sz);
-tx=Math.floor(ex/sz);
-ty=Math.floor(ey/sz);
-if(tx<0)tx=0;if(tx>=mx)tx=mx-1;
-if(ty<0)ty=0;if(ty>=my)ty=my-1;
-moving=true;
-};
-document.addEventListener('keydown',function(e){
-if(!pl)return;
-if(e.key=='ArrowUp'){ty=Math.max(0,player.y-1);moving=true}
-else if(e.key=='ArrowDown'){ty=Math.min(Math.floor(c.height/sz)-1,player.y+1);moving=true}
-else if(e.key=='ArrowLeft'){tx=Math.max(0,player.x-1);moving=true}
-else if(e.key=='ArrowRight'){tx=Math.min(Math.floor(c.width/sz)-1,player.x+1);moving=true}
-});
 document.getElementById('sb').onclick=st;
 document.getElementById('rb').onclick=st;
 </script>
